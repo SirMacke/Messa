@@ -1,21 +1,28 @@
 <template>
-  <Messenger/>
+  <router-view/>
 </template>
 
 <script>
-import Messenger from './components/Messenger.vue'
+import { useStore } from 'vuex';
+import { computed } from 'vue';
 
 export default {
   name: 'App',
-  components: {
-    Messenger
+  setup() {
+    const store = useStore();
+    const user = computed(() => store.state.User.user);
+
+    return {
+      user
+    }
   }
 }
 </script>
 
 <style lang="sass">
+@import url('https://fonts.googleapis.com/css2?family=Lato&display=swap');
 #app
-  font-family: Avenir, Helvetica, Arial, sans-serif
+  font-family: Lato, Avenir, Helvetica, Arial, sans-serif
   -webkit-font-smoothing: antialiased
   -moz-osx-font-smoothing: grayscale
 
