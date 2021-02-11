@@ -6,6 +6,10 @@
         <h3>{{contact.name}}</h3>
         <p>{{contact.messages[contact.messages.length - 1].text}}</p>
       </div>
+      <div id="newContact">
+        <input type="text" v-model="state.newThread" placeholder="Add new user...">
+        <button type="submit" @click="startNewThread">+</button>
+      </div>
     </div>
     <div id="messages">
       <div id="content">
@@ -25,12 +29,18 @@
 </template>
 
 <script>
+import axios from "axios";
+import store from '../store/';
 import { reactive } from 'vue';
+import { useStore } from 'vuex';
 
 export default {
   setup() {
+    const storeData = useStore();
+
     const state = reactive({
       activeContact: 0,
+      newThread: "",
       newMessage: "",
       user: {
         username: "SirMacke",
@@ -202,12 +212,30 @@ export default {
       ]
     });
 
+    console.log(storeData.state.User.user);
+    console.log(storeData.state.User.user.threads[0]);
+
     function sendMessage() {
       console.log(state.newMessage)
     }
 
+    async function startNewThread() {
+      const params = new URLSearchParams();
+      params.append('usernameOrEmail', state.newThread);
+      params.append('auth', storeData.state.User.user.auth);
+
+      const response = await axios.post('/api/messenger/newThread', params);
+
+      await store.dispatch('User/setNewThread', response.data);
+
+      //router.push('/');
+
+      //state.user = computed(() => storeData.state.User.user);
+    }
+
     return {
       state,
+      startNewThread,
       sendMessage
     }
   }
@@ -268,6 +296,41 @@ export default {
         width: 85%
         padding: 0px
         margin-bottom: 25px
+
+    #newContact
+      margin: 20px 15px
+      display: flex
+      position: relative
+
+      input
+        position: relative
+        width: 100%
+        height: 35px
+        padding-left: 12.5px
+        border-radius: 25px
+        outline: none
+        border: none
+        background: #EEEEEE
+
+      button
+        position: absolute
+        right: 0px
+        z-index: 5
+        border: none
+        outline: none
+        background: #1DA1F2
+        font-weight: bold
+        font-size: 1.4em
+        color: white
+        height: 37px
+        width: 37px
+        border-top-right-radius: 25px
+        border-bottom-right-radius: 25px
+        
+      button:hover
+        cursor: pointer
+        background: #00a0dc
+
 
   #messages
     position: relative

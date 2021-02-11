@@ -9,6 +9,9 @@ export const UserModule = {
   mutations: {
     SET_USER(state, user) {
       state.user = user;
+    },
+    SET_NEW_THREAD(state, data) {
+      state.user.threads.push(data);
     }
   },
 
@@ -16,6 +19,9 @@ export const UserModule = {
   actions: {
     setUser({ commit }, user) {
       commit('SET_USER', user);
-    } 
+    },
+    setNewThread({ commit }, data) {
+      commit('SET_NEW_THREAD', data)
+    }
   }
 }

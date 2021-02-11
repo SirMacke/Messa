@@ -19,7 +19,7 @@ router.post('/', validate(validateUser), async(req, res) => {
     username: user.username,
     email: user.email,
     auth: token,
-    tasks: []
+    threads: user.threads
   }
 
   res.status(200).json(response);
