@@ -1,4 +1,4 @@
 {
   "jwtPrivateKey": "1234",
-  "db": "mongodb://localhost/messa"
+  "db": "mongodb+srv://messauser:1iH5t8JaklRftOJ0@messa1.ry8to.mongodb.net/Messa1?retryWrites=true&w=majority"
 }

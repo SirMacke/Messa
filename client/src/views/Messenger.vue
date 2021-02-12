@@ -1,27 +1,27 @@
 <template>
   <div id="messenger">
     <div id="list">
-      <div id="contact" v-for="contact in state.contacts" :key="contact.id">
+      <div id="contact" v-for="contact in contacts" :key="contact.id">
         <img :src="require(`../assets/${contact.name.toLowerCase()}.jpg`)">
         <h3>{{contact.name}}</h3>
         <p>{{contact.messages[contact.messages.length - 1].text}}</p>
       </div>
       <div id="newContact">
-        <input type="text" v-model="state.newThread" placeholder="Add new user...">
-        <button type="submit" @click="startNewThread">+</button>
+        <input type="text" v-model="newThread" placeholder="Add new user...">
+        <button type="submit" @click="startNewThread()">+</button>
       </div>
     </div>
     <div id="messages">
       <div id="content">
-        <div id="message" v-for="(message, index) in state.contacts[state.activeContact].messages" :key="index">
+        <div id="message" v-for="(message, index) in contacts[activeContact].messages" :key="index">
           <p id="contactText" v-if="message.by != 'User'">{{message.text}}</p>
-          <img id="contactImg" v-if="message.by != 'User'" :src="require(`../assets/${state.contacts[state.activeContact].name.toLowerCase()}.jpg`)">
+          <img id="contactImg" v-if="message.by != 'User'" :src="require(`../assets/${contacts[activeContact].name.toLowerCase()}.jpg`)">
           <p id="userText" v-if="message.by == 'User'">{{message.text}}</p>
-          <img id="userImg" v-if="message.by == 'User'" :src="require(`../assets/${state.user.username.toLowerCase()}.jpg`)">
+          <img id="userImg" v-if="message.by == 'User'" :src="require(`../assets/${user.username.toLowerCase()}.jpg`)">
         </div>
       </div>
       <div id="type-box">
-        <input type="text" v-model="state.newMessage" placeholder="Write a message...">
+        <input type="text" v-model="newMessage" placeholder="Write a message...">
         <button type="submit" @click="sendMessage()">Send</button>
       </div>
     </div>
@@ -29,16 +29,17 @@
 </template>
 
 <script>
-import axios from "axios";
-import store from '../store/';
-import { reactive } from 'vue';
-import { useStore } from 'vuex';
+//import axios from "axios";
+//import store from '../store/';
+//import { useStore } from 'vuex';
+import { io } from 'socket.io-client';
+//const storeData = useStore();
+//console.log(storeData)
 
 export default {
-  setup() {
-    const storeData = useStore();
-
-    const state = reactive({
+  data() {
+    return {
+      socket: {},
       activeContact: 0,
       newThread: "",
       newMessage: "",
@@ -210,33 +211,21 @@ export default {
           ]
         },
       ]
+    }
+  },
+  created() {
+    this.socket = io('http://localhost:3001/api/messenger', { transport: ["websocket"] });
+  },
+  mounted() {
+    console.log(this.socket)
+    this.socket.on('Welcome', data => {
+      console.log(data)
     });
-
-    console.log(storeData.state.User.user);
-    console.log(storeData.state.User.user.threads[0]);
-
-    function sendMessage() {
-      console.log(state.newMessage)
-    }
-
-    async function startNewThread() {
-      const params = new URLSearchParams();
-      params.append('usernameOrEmail', state.newThread);
-      params.append('auth', storeData.state.User.user.auth);
-
-      const response = await axios.post('/api/messenger/newThread', params);
-
-      await store.dispatch('User/setNewThread', response.data);
-
-      //router.push('/');
-
-      //state.user = computed(() => storeData.state.User.user);
-    }
-
-    return {
-      state,
-      startNewThread,
-      sendMessage
+  },
+  methods: {
+    startNewThread() {
+      console.log('test');
+      //socket.emit("joinThread", "test");
     }
   }
 }

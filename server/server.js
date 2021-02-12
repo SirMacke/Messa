@@ -8,6 +8,7 @@ require('./startup/db.js')();
 require('./startup/config.js')();
 require('./startup/validation.js')();
 require('./startup/prod.js')(app);
+require('./routes/api/messenger.js')();
 
 var port = process.env.PORT || 3000;
 const server = app.listen(port, () => logger.log('info', `Listening on port ${port}...`));

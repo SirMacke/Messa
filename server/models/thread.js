@@ -29,7 +29,7 @@ const threadSchema = new mongoose.Schema({
   }
 });
 
-
+const Message = mongoose.model('Message', messageSchema);
 const Thread = mongoose.model('Thread', threadSchema);
 
 function validateThread(thread) {
@@ -44,3 +44,4 @@ function validateThread(thread) {
 exports.threadSchema = threadSchema;
 exports.Thread = Thread;
 exports.validateThread = validateThread;
+exports.Message = Message;
