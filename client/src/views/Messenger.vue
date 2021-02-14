@@ -57,7 +57,9 @@ export default {
     });
 
     this.socket.on('newMessage', async data => {
+      console.log('Messenger')
       console.log(data);
+      console.log(data.msg);
       await store.dispatch('User/setNewMessage', data);
     });
   },

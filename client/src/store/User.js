@@ -16,6 +16,9 @@ export const UserModule = {
     SET_NEW_MESSAGE(state, data) {
       for (let i = 0; i < state.user.threads.length; i++) {
         if (state.user.threads[i]._id == data.threadId) {
+          console.log('mutations');
+          console.log(state.user.threads[i].messages);
+          console.log(data.msg);
           state.user.threads[i].messages.push(data.msg);
         }
       }
@@ -31,6 +34,9 @@ export const UserModule = {
       commit('SET_NEW_THREAD', data);
     },
     setNewMessage({ commit }, data) {
+      console.log('actions');
+      console.log(data);
+      console.log(data.msg);
       commit('SET_NEW_MESSAGE', data);
     }
   }

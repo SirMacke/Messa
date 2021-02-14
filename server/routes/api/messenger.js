@@ -76,7 +76,7 @@ module.exports = function() {
       thread.messages.push(message);
       await thread.save();
       
-      io.of("/api/messenger").to(thread._id.toString()).emit('newMessage', { msg: thread.messages[0], threadId: thread._id });
+      io.of("/api/messenger").to(thread._id.toString()).emit('newMessage', { msg: thread.messages[thread.messages.length - 1], threadId: thread._id });
     });
   
     socket.on("disconnect", () => {
