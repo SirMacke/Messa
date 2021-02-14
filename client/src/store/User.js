@@ -11,7 +11,14 @@ export const UserModule = {
       state.user = user;
     },
     SET_NEW_THREAD(state, data) {
-      state.user.threads.push(data);
+      state.user.threads.unshift(data);
+    },
+    SET_NEW_MESSAGE(state, data) {
+      for (let i = 0; i < state.user.threads.length; i++) {
+        if (state.user.threads[i]._id == data.threadId) {
+          state.user.threads[i].messages.push(data.msg);
+        }
+      }
     }
   },
 
@@ -21,7 +28,10 @@ export const UserModule = {
       commit('SET_USER', user);
     },
     setNewThread({ commit }, data) {
-      commit('SET_NEW_THREAD', data)
+      commit('SET_NEW_THREAD', data);
+    },
+    setNewMessage({ commit }, data) {
+      commit('SET_NEW_MESSAGE', data);
     }
   }
 }

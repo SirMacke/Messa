@@ -1,10 +1,10 @@
 <template>
   <div id="messenger">
     <div id="list">
-      <div id="contact" v-for="contact in contacts" :key="contact.id">
-        <img :src="require(`../assets/${contact.name.toLowerCase()}.jpg`)">
-        <h3>{{contact.name}}</h3>
-        <p>{{contact.messages[contact.messages.length - 1].text}}</p>
+      <div class="contact" @click="activeContact = index" :class="{ active: activeContact == index, zeroIndex: index == 0 }" v-for="(thread, index) in store.state.User.user.threads" :key="index">
+        <img :src="require(`../assets/sirmacke.jpg`)">
+        <h3>{{threadName(thread)}}</h3>
+        <!--<p>{{thread.messages[thread.messages.length - 1].text}}</p>-->
       </div>
       <div id="newContact">
         <input type="text" v-model="newContact" placeholder="Add new user...">
@@ -13,11 +13,11 @@
     </div>
     <div id="messages">
       <div id="content">
-        <div id="message" v-for="(message, index) in contacts[activeContact].messages" :key="index">
-          <p id="contactText" v-if="message.by != 'User'">{{message.text}}</p>
-          <img id="contactImg" v-if="message.by != 'User'" :src="require(`../assets/${contacts[activeContact].name.toLowerCase()}.jpg`)">
-          <p id="userText" v-if="message.by == 'User'">{{message.text}}</p>
-          <img id="userImg" v-if="message.by == 'User'" :src="require(`../assets/${user.username.toLowerCase()}.jpg`)">
+        <div class="message" v-for="(message, index) in store.state.User.user.threads[activeContact].messages" :key="index">
+          <p class="contactText" v-if="message.by != store.state.User.user.username">{{message.text}}</p>
+          <img class="contactImg" v-if="message.by != store.state.User.user.username" :src="require(`../assets/sirmacke.jpg`)">
+          <p class="userText" v-if="message.by == store.state.User.user.username">{{message.text}}</p>
+          <img class="userImg" v-if="message.by == store.state.User.user.username" :src="require(`../assets/sirmacke.jpg`)">
         </div>
       </div>
       <div id="type-box">
@@ -32,6 +32,7 @@
 //import axios from "axios";
 //import store from '../store/';
 import { useStore } from 'vuex';
+import store from '../store/';
 import { io } from 'socket.io-client';
 
 export default {
@@ -41,175 +42,7 @@ export default {
       store: {},
       activeContact: 0,
       newContact: "",
-      newMessage: "",
-      user: {
-        username: "SirMacke",
-        name: "Maximilian Helmersson"
-      },
-      contacts: [
-        {
-          id: 1,
-          name: "Liam",
-          messages: [
-            {
-              text: "Something 1. Lorem ipsum dollar sit amet",
-              by: "User",
-              date: "2021-02-07",
-              time: "01:35"
-            },
-            {
-              text: "Something 2. Lorem ipsum dollar sit amet",
-              by: "Liam",
-              date: "2021-02-07",
-              time: "01:40"
-            },
-            {
-              text: "Something 3. Lorem ipsum dollar sit amet",
-              by: "User",
-              date: "2021-02-07",
-              time: "01:45"
-            },
-            {
-              text: "Something 4. Lorem ipsum dollar sit amet",
-              by: "Liam",
-              date: "2021-02-07",
-              time: "01:45"
-            },
-            {
-              text: "Something 1. Lorem ipsum dollar sit amet",
-              by: "User",
-              date: "2021-02-07",
-              time: "01:35"
-            },
-            {
-              text: "Something 2. Lorem ipsum dollar sit amet",
-              by: "Liam",
-              date: "2021-02-07",
-              time: "01:40"
-            },
-            {
-              text: "Something 3. Lorem ipsum dollar sit amet",
-              by: "User",
-              date: "2021-02-07",
-              time: "01:45"
-            },
-            {
-              text: "Something 4. Lorem ipsum dollar sit amet",
-              by: "Liam",
-              date: "2021-02-07",
-              time: "01:45"
-            },
-            {
-              text: "Something 1. Lorem ipsum dollar sit amet",
-              by: "User",
-              date: "2021-02-07",
-              time: "01:35"
-            },
-            {
-              text: "Something 2. Lorem ipsum dollar sit amet",
-              by: "Liam",
-              date: "2021-02-07",
-              time: "01:40"
-            },
-            {
-              text: "Something 3. Lorem ipsum dollar sit amet",
-              by: "User",
-              date: "2021-02-07",
-              time: "01:45"
-            },
-            {
-              text: "Something 4. Lorem ipsum dollar sit amet",
-              by: "Liam",
-              date: "2021-02-07",
-              time: "01:45"
-            }
-          ]
-        },
-        {
-          id: 2,
-          name: "Olivia",
-          messages: [
-            {
-              text: "Something. Lorem ipsum dollar sit amet",
-              date: "2021-02-07",
-              time: "01:35"
-            },
-            {
-              text: "Something. Lorem ipsum dollar sit amet",
-              date: "2021-02-07",
-              time: "01:40"
-            },
-            {
-              text: "Something. Lorem ipsum dollar sit amet",
-              date: "2021-02-07",
-              time: "01:45"
-            }
-          ]
-        },
-        {
-          id: 3,
-          name: "Noah",
-          messages: [
-            {
-              text: "Something. Lorem ipsum dollar sit amet",
-              date: "2021-02-07",
-              time: "01:35"
-            },
-            {
-              text: "Something. Lorem ipsum dollar sit amet",
-              date: "2021-02-07",
-              time: "01:40"
-            },
-            {
-              text: "Something. Lorem ipsum dollar sit amet",
-              date: "2021-02-07",
-              time: "01:45"
-            }
-          ]
-        },
-        {
-          id: 4,
-          name: "Emma",
-          messages: [
-            {
-              text: "Something. Lorem ipsum dollar sit amet",
-              date: "2021-02-07",
-              time: "01:35"
-            },
-            {
-              text: "Something. Lorem ipsum dollar sit amet",
-              date: "2021-02-07",
-              time: "01:40"
-            },
-            {
-              text: "Something. Lorem ipsum dollar sit amet",
-              date: "2021-02-07",
-              time: "01:45"
-            }
-          ]
-        },
-        {
-          id: 5,
-          name: "Oliver",
-          messages: [
-            {
-              text: "Something. Lorem ipsum dollar sit amet",
-              date: "2021-02-07",
-              time: "01:35"
-            },
-            {
-              text: "Something. Lorem ipsum dollar sit amet",
-              date: "2021-02-07",
-              time: "01:40"
-            },
-            {
-              text: "Something. Lorem ipsum dollar sit amet",
-              date: "2021-02-07",
-              time: "01:45"
-            }
-          ]
-        },
-      ]
+      newMessage: ""
     }
   },
   created() {
@@ -217,13 +50,35 @@ export default {
     this.store = useStore();
   },
   mounted() {
-    this.socket.on('event', data => {
-      console.log(data)
+    this.socket.emit('joinThreads', { data: this.store.state.User.user.threads });
+
+    this.socket.on('newThread', async data => {
+      await store.dispatch('User/setNewThread', data);
+    });
+
+    this.socket.on('newMessage', async data => {
+      console.log(data);
+      await store.dispatch('User/setNewMessage', data);
     });
   },
   methods: {
     startNewThread() {
       this.socket.emit("newThread", {auth: this.store.state.User.user.auth, newContact: this.newContact});
+    },
+    threadName(thread) {
+      let names = [];
+      for (let i = 0; i < thread.users.length; i++) {
+        if (thread.users[i].username != this.store.state.User.user.username) names.push(thread.users[i].username)
+      }
+      if (names.length == 1) return names.toString();
+      else return names.join(", ");
+    },
+    sendMessage() {
+      this.socket.emit("newMessage", {
+        thread: this.store.state.User.user.threads[this.activeContact]._id,
+        msg: this.newMessage,
+        by: this.store.state.User.user.username
+      });
     }
   }
 }
@@ -244,7 +99,8 @@ export default {
   grid-template-columns: 30% 70%
 
   #list::-webkit-scrollbar
-    width: 8px
+    // scrollbar wont be seen - bug that needs to be fixed
+    width: 0px
 
   #list::-webkit-scrollbar-track
     background: none
@@ -259,7 +115,16 @@ export default {
     border-right: 3px solid #CCCCCC
     overflow-y: scroll
 
-    #contact
+    .active
+      background-color: #EEEEEE
+
+    .zeroIndex
+      border-top-left-radius: 10px
+
+    .contact:hover
+      cursor: pointer
+
+    .contact
       position: relative
       border-bottom: 3px solid #EEEEEE
 
@@ -347,7 +212,7 @@ export default {
       display: flex
       flex-direction: column
 
-      #message
+      .message
         position: relative
         width: 100%
         min-height: 45px
@@ -360,10 +225,10 @@ export default {
           border-radius: 50%
           margin-bottom: 25px
 
-        #contactImg
+        .contactImg
           left: 25px
 
-        #userImg
+        .userImg
           right: 25px
 
         p
@@ -375,10 +240,10 @@ export default {
           margin: 0px
           top: 3.5px
 
-        #contactText
+        .contactText
           left: 12.5%
 
-        #userText
+        .userText
           margin-left: 48.5%
 
     #type-box

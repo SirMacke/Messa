@@ -6,7 +6,7 @@ const config = require('config');
 const _ = require('lodash');
 const validate = require('../../middleware/validate.js');
 const { User } = require('../../models/user.js');
-const { Thread, Message } = require('../../models/thread.js');
+const { Thread, Message, threadSchema } = require('../../models/thread.js');
 const mongoose = require('mongoose');
 //const { io } = require('../../server');
 
@@ -33,7 +33,12 @@ module.exports = function() {
   
   io.of("/api/messenger").on("connection", (socket) => {
     console.log("socket.io: User connected: ", socket.id);
-    socket.emit('Welcome', "test2");
+
+    socket.on("joinThreads", async (data) => {
+      for (let i = 0; i < data.data.length; i++) {
+        socket.join(data.data[i]._id);
+      }
+    });
 
     socket.on("newThread", async (args) => {
       const decoded = jwt.verify(args.auth, config.get('jwtPrivateKey'));
@@ -41,11 +46,9 @@ module.exports = function() {
       let user = await User.findById(decoded);
       let otherUser = await User.findOne({ username: args.newContact });
       if (!otherUser) return res.status(400).send('Invalid username');
-      console.log(user);
-      console.log(otherUser)
 
       thread = new Thread({
-        users: [user._id, otherUser._id]
+        users: [{_id: user._id, username: user.username}, {_id: otherUser._id, username: otherUser.username}]
       });
       await thread.save();
 
@@ -55,8 +58,25 @@ module.exports = function() {
       otherUser.threads.push(thread._id);
       await otherUser.save();
 
-      socket.join(thread._id);
-      io.to(thread._id).emit('event', 'test3');
+      io.of("/api/messenger").in(thread._id).emit('newThread', thread);
+    });
+
+    socket.on("newMessage", async (args) => {
+      let thread = await Thread.findById(args.thread);
+      if (!thread) return res.status(400).send('Invalid thread');
+
+      console.log(args.msg);
+
+      message = new Message({
+        text: args.msg,
+        by: args.by
+      });
+
+      console.log(message);
+      thread.messages.push(message);
+      await thread.save();
+      
+      io.of("/api/messenger").to(thread._id.toString()).emit('newMessage', { msg: thread.messages[0], threadId: thread._id });
     });
   
     socket.on("disconnect", () => {
@@ -74,7 +94,7 @@ module.exports = function() {
 
 
 
-  const connection = mongoose.connection;
+  /*const connection = mongoose.connection;
   
   connection.once("open", () => {
     console.log("MongoDB database connected");
@@ -86,11 +106,11 @@ module.exports = function() {
       switch (change) {
         case "joinThread":
           console.log("change.fullDocument.text")
-          /*const message = new Message({
+          const message = new Message({
             text: change.fullDocument.text
           });
   
-          io.of("/api/messenger").emit("newMessage", message);*/
+          io.of("/api/messenger").emit("newMessage", message);
           break;
   
         case "delete":
@@ -98,7 +118,7 @@ module.exports = function() {
           break;
       }
     });
-  });
+  });*/
 
   port = 3001
   http.listen(port, () => {
