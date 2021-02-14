@@ -7,7 +7,7 @@
         <p>{{contact.messages[contact.messages.length - 1].text}}</p>
       </div>
       <div id="newContact">
-        <input type="text" v-model="newThread" placeholder="Add new user...">
+        <input type="text" v-model="newContact" placeholder="Add new user...">
         <button type="submit" @click="startNewThread()">+</button>
       </div>
     </div>
@@ -31,17 +31,16 @@
 <script>
 //import axios from "axios";
 //import store from '../store/';
-//import { useStore } from 'vuex';
+import { useStore } from 'vuex';
 import { io } from 'socket.io-client';
-//const storeData = useStore();
-//console.log(storeData)
 
 export default {
   data() {
     return {
       socket: {},
+      store: {},
       activeContact: 0,
-      newThread: "",
+      newContact: "",
       newMessage: "",
       user: {
         username: "SirMacke",
@@ -215,17 +214,16 @@ export default {
   },
   created() {
     this.socket = io('http://localhost:3001/api/messenger', { transport: ["websocket"] });
+    this.store = useStore();
   },
   mounted() {
-    console.log(this.socket)
-    this.socket.on('Welcome', data => {
+    this.socket.on('event', data => {
       console.log(data)
     });
   },
   methods: {
     startNewThread() {
-      console.log('test');
-      //socket.emit("joinThread", "test");
+      this.socket.emit("newThread", {auth: this.store.state.User.user.auth, newContact: this.newContact});
     }
   }
 }
